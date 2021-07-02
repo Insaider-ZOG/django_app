@@ -73,7 +73,7 @@ class Account(AbstractBaseUser):
 
 
     def get_last_login(self):
-        return self.last_login
+        return self.last_login  # почему нельзя просто использовать self.last_login, безсмысленный метод
 
 
     class Meta:
