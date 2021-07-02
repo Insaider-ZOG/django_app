@@ -4,7 +4,7 @@ from account_app.models import Account
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=125, unique=True)
+    category_name = models.CharField(max_length=125, unique=True)  # Сущность называтьеся категория, зачем добавлять в название атрибуту ее название, дублирование бесполезное
     time_create = models.DateTimeField(auto_now_add=True)
 
 

@@ -1,4 +1,4 @@
-import os
+import os  # Не уверен что папке example_drf тут место
 
 from django.core.wsgi import get_wsgi_application
 
