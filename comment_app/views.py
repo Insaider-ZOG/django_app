@@ -11,18 +11,18 @@ class OneCommentDetail(views.APIView):
     permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
     authentication_classes = [SessionAuthentication, BasicAuthentication]
 
-    def get_object(self, pk):
+    def get_object(self, pk):  # Зачем нужно было переопределять этот метод, ничего нового ты вроде не добавил
         try:
             return models.Comment.objects.get(pk=pk)
         except models.Comment.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk):
+    def get(self, request, pk): # Можно было использовать RetrieveModelMixin
         post = self.get_object(pk)
         serialiser = serializers.CommentListSerializer(post)
         return Response(serialiser.data)
 
-    def delete(self, request, pk):
+    def delete(self, request, pk): # Можно было использовать DestroyModelMixin
         post = self.get_object(pk)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
