@@ -12,7 +12,7 @@ class Comment(models.Model):
     post = models.ForeignKey('post_app.Post', related_name='comments', on_delete=models.CASCADE)
 
     def __str__(self):
-        return 'Comment'
+        return 'Comment'  # Просто слово комент ?( Уверен можно сделать этот метод полезнее
 
     class Meta:
         verbose_name = 'Comment'
