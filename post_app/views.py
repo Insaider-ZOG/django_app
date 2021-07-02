@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from . import serializers, models, permissions
 
 
-class CategoryList(generics.ListAPIView): # Тут и ниже базовый CRUD либо его часть, можно было бы просто отнаследоваться от миксинов (CreateModelMixin, ...)
+class CategoryList(generics.ListAPIView):
     permission_classes = [IsAdminUser]
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     queryset = models.Category.objects.all()

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from account_app.models import Account
 
 
-class AccountSerializer(serializers.ModelSerializer): # А ты эту схему используешь в коде ?
+class AccountSerializer(serializers.ModelSerializer):
     posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
