@@ -1,68 +1,21 @@
-from django.http import Http404
-from rest_framework import generics, mixins, views, status
+from rest_framework import generics, mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.response import Response
 
 from . import serializers, models, permissions
 
 
 class CategoryList(generics.ListAPIView):
-    permission_classes = [IsAdminUser]
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAdminUser]
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategoryListSerializer
 
 
-class PostList(generics.ListAPIView):
-    queryset = models.Post.objects.all()
-    serializer_class = serializers.PostListSerializer
-
-
-class OnePostDetail(views.APIView):
-    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def get_object(self, pk):
-        try:
-            return models.Post.objects.get(pk=pk)
-        except models.Post.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        post = self.get_object(pk)
-        serialiser = serializers.PostDetailSerializer(post)
-        return Response(serialiser.data)
-
-    def delete(self, request, pk):
-        post = self.get_object(pk)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class PostUpdate(views.APIView):
-    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def get_object(self, pk):
-        try:
-            return models.Post.objects.get(pk=pk)
-        except models.Post.DoesNotExist:
-            raise Http404
-
-    def put(self, request, pk):
-        post = self.get_object(pk)
-        serializer = serializers.PostDetailSerializer(post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CreatePost(mixins.CreateModelMixin,
-               generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+                 generics.GenericAPIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = models.Post.objects.all()
     serializer_class = serializers.CreatePostSerializer
 
@@ -71,3 +24,43 @@ class CreatePost(mixins.CreateModelMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+class PostList(generics.ListAPIView):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.PostListSerializer
+
+
+class GetOnePost(mixins.RetrieveModelMixin,
+                 generics.GenericAPIView):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.PostDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
+class PostDetailDelete(mixins.DestroyModelMixin,
+                       generics.GenericAPIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.PostDetailSerializer
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class PostDetailUpdate(mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin,
+                       generics.GenericAPIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.PostDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)

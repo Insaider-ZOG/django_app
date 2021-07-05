@@ -1,6 +1,29 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from account_app.models import Account
+
+
+class RegisterAccountSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Account
+        fields = ["id", 'email', 'username', 'password', "confirm_password", "date_joined"]
+
+    def validate(self, attrs):
+        if attrs.get('password') != attrs.get('confirm_password'):
+            raise serializers.ValidationError("Those passwords don't match.")
+        del attrs['confirm_password']
+        attrs['password'] = make_password(attrs['password'])
+        return attrs
+
+
+class AccountDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = '__all__'
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -10,29 +33,3 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['id', 'username', 'email', 'password', 'posts', 'comments']
-
-
-class RegisterAccountSerializer(serializers.ModelSerializer):
-     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
-
-     class Meta:
-         model = Account
-         fields = ['email', 'username', 'password', 'password2']
-         extra_kwargs = {'password2': {'write_only':True}}
-
-     def create(self, validated_data):
-         account = Account(
-             email=self.validated_data['email'],
-             username=self.validated_data['username'],
-         )
-
-         password = self.validated_data['password']
-         password2 = self.validated_data['password2']
-
-         if password != password2:
-             raise serializers.ValidationError({'password': 'Password must match.'})
-
-         account.set_password(password)
-         account.save()
-         return account
-

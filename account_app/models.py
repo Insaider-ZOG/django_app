@@ -51,7 +51,6 @@ class Account(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True)
     password = models.CharField(max_length=100)
     date_joined = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(auto_now =True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -71,12 +70,7 @@ class Account(AbstractBaseUser):
     def has_module_perms(self, app_lable):
         return True
 
-
-    def get_last_login(self):
-        return self.last_login
-
-
     class Meta:
         verbose_name = "Account"
-        verbose_name_plural = "Accounts"
+        verbose_name_plural = "Account"
         ordering = ("date_joined", )

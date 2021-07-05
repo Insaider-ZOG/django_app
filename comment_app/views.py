@@ -1,54 +1,13 @@
-from django.http import Http404
-from rest_framework import generics, mixins, views, status
+from rest_framework import generics, mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.response import Response
+
 
 from . import serializers, models, permissions
 
 
-class OneCommentDetail(views.APIView):
-    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def get_object(self, pk):
-        try:
-            return models.Comment.objects.get(pk=pk)
-        except models.Comment.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        post = self.get_object(pk)
-        serialiser = serializers.CommentListSerializer(post)
-        return Response(serialiser.data)
-
-    def delete(self, request, pk):
-        post = self.get_object(pk)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CommentUpdate(views.APIView):
-    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-
-    def get_object(self, pk):
-        try:
-            return models.Comment.objects.get(pk=pk)
-        except models.Comment.DoesNotExist:
-            raise Http404
-
-    def put(self, request, pk):
-        post = self.get_object(pk)
-        serializer = serializers.CommentDetailSerializer(post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CreateComment(mixins.CreateModelMixin,
-               generics.GenericAPIView):
+                    generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
     queryset = models.Comment.objects.all()
@@ -59,3 +18,38 @@ class CreateComment(mixins.CreateModelMixin,
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+
+class OneComment(mixins.RetrieveModelMixin,
+                 generics.GenericAPIView):
+    queryset = models.Comment.objects.all()
+    serializer_class = serializers.CommentDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
+class CommentDetailDelete(mixins.DestroyModelMixin,
+                          generics.GenericAPIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
+    queryset = models.Comment.objects.all()
+    serializer_class = serializers.CommentDetailSerializer
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class CommentUpdate(mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin,
+                       generics.GenericAPIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated, permissions.IsOwnerOrReadOnly]
+    queryset = models.Comment.objects.all()
+    serializer_class = serializers.CommentDetailSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)

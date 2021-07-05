@@ -3,8 +3,6 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-
 SECRET_KEY = 'django-insecure-@v(03$-y2+42qx1q%5ynq8$eqneim-56t^_a0cd(1ed42o&w_f'
 
 
@@ -82,6 +80,16 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'account_app.Account'
 
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = '......@gmail.com'
+# EMAIL_HOST_PASSWORD = '.......'
+# EMAIL_PORT = 587
+#
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 ROOT_URLCONF = 'example_drf.urls'
 

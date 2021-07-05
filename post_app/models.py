@@ -4,12 +4,12 @@ from account_app.models import Account
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=125, unique=True)
+    name = models.CharField(max_length=125, unique=True)
     time_create = models.DateTimeField(auto_now_add=True)
 
 
     def __str__(self):
-        return self.category_name
+        return self.name
 
     class Meta:
         verbose_name = 'Category'
