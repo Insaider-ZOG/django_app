@@ -40,6 +40,16 @@ class GetOnePost(mixins.RetrieveModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
 
+class GePublishedPosts(generics.ListAPIView):
+    queryset = models.Post.objects.all().filter(is_published=True)
+    serializer_class = serializers.PostDetailSerializer
+
+
+class GeNotPublishedPosts(generics.ListAPIView):
+    queryset = models.Post.objects.all().filter(is_published=False)
+    serializer_class = serializers.PostDetailSerializer
+
+
 class PostDetailDelete(mixins.DestroyModelMixin,
                        generics.GenericAPIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication, TokenAuthentication]
